@@ -5,6 +5,7 @@ require './lib/roadmap.rb'
 class Kele
   include HTTParty
   include Roadmap
+
   base_uri 'https://www.bloc.io/api/v1'
 
   def initialize(email, password)
@@ -25,5 +26,18 @@ class Kele
     @mentor_id = mentor_id
     response = self.class.get("https://www.bloc.io/api/v1/mentors/#{@mentor_id}/student_availability", values: { "id" => @mentor_id }, headers: { "authorization" => @auth_token })
     @availability = JSON.parse(response.body)
+  end
+
+  def get_messages(page = 'all')
+    if page == 'all'
+      response = self.class.get("https://www.bloc.io/api/v1/message_threads", headers: { "authorization" => @auth_token })
+    else
+      response = self.class.get("https://www.bloc.io/api/v1/message_threads/?page=#{page}", values: { "page" => page }, headers: { "authorization" => @auth_token })
+    end
+    @message = JSON.parse(response.body)
+  end
+
+  def create_message(sender_email, recipient_id, subject, stripped_text)
+    response = self.class.post("https://www.bloc.io/api/v1/messages", body: { "sender" => sender_email, "recipient_id" => recipient_id, "subject" => subject, "stripped-text" => stripped_text }, headers: { "authorization" => @auth_token })
   end
 end
