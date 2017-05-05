@@ -8,6 +8,7 @@ class Kele
 
   base_uri 'https://www.bloc.io/api/v1'
 
+  # Login via API
   def initialize(email, password)
     @email = email
     @password = password
@@ -17,17 +18,20 @@ class Kele
     raise "Invalid email or password" unless response.code == 200
   end
 
+  # Entire User File
   def get_me
     response = self.class.get("https://www.bloc.io/api/v1/users/me", headers: { "authorization" => @auth_token })
     @user = JSON.parse(response.body)
   end
 
+  # Mentor schedule
   def get_mentor_availability(mentor_id)
     @mentor_id = mentor_id
     response = self.class.get("https://www.bloc.io/api/v1/mentors/#{@mentor_id}/student_availability", values: { "id" => @mentor_id }, headers: { "authorization" => @auth_token })
     @availability = JSON.parse(response.body)
   end
 
+  # Retrieve personal messages
   def get_messages(page = 'all')
     if page == 'all'
       response = self.class.get("https://www.bloc.io/api/v1/message_threads", headers: { "authorization" => @auth_token })
@@ -37,19 +41,10 @@ class Kele
     @message = JSON.parse(response.body)
   end
 
+  # Create message
   def create_message(sender_email, recipient_id, subject, stripped_text)
     response = self.class.post("https://www.bloc.io/api/v1/messages", body: { "sender" => sender_email, "recipient_id" => recipient_id, "subject" => subject, "stripped-text" => stripped_text }, headers: { "authorization" => @auth_token })
   end
 
-  def create_submission(checkpoint_id, enrollment_id, assignment_branch = nil, assignment_commit_link = nil, comment = nil)
-    response = self.class.post("https://www.bloc.io/api/v1/checkpoint_submissions",
-    body: {
-      checkpoint_id: checkpoint_id,
-      enrollment_id: enrollment_id,
-      assignment_branch: assignment_branch,
-      assignment_commit_link: assignment_commit_link,
-      comment: comment
-      },
-    headers: { "authorization" => @auth_token })
-  end
+  
 end
